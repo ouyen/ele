@@ -77,36 +77,38 @@ def single_loop(driver:webdriver.Firefox):
             
 
 if __name__=="__main__":
-    print('Start Driver')
-    with open('config.json','r') as f:
-        config=f.read()
-    config_json=json.loads(config)
-    stuid=config_json['stuid']
-    passwd=config_json['passwd']
-    ele_set=config_json['ele_set']
-    with open('1.js','r') as f:
-        js=f.read()
-    r=CaptchaRecognizer(CNN_MODEL_FILE)
-    driver=iaaa_login()
-    if 1:#主修
-        WebDriverWait(driver,10).until(
-            EC.element_to_be_clickable((By.ID,'div1'))
-        ).click()
-
-    tmp=WebDriverWait(driver,10).until(
-        EC.visibility_of_all_elements_located((By.CLASS_NAME,'titlelink1'))
-    )
-    print(len(tmp))
-    tmp[3].click()#补退选
-
-    print('Begin Loop')
     while(ele_set):
-        single_loop(driver)
-        print(time.asctime())
-        time.sleep(10+randint(0,5))
-        
-                
+        try:
+            print('Start Driver')
+            with open('config.json','r') as f:
+                config=f.read()
+            config_json=json.loads(config)
+            stuid=config_json['stuid']
+            passwd=config_json['passwd']
+            ele_set=config_json['ele_set']
+            with open('1.js','r') as f:
+                js=f.read()
+            r=CaptchaRecognizer(CNN_MODEL_FILE)
+            driver=iaaa_login()
+            if 1:#主修
+                WebDriverWait(driver,10).until(
+                    EC.element_to_be_clickable((By.ID,'div1'))
+                ).click()
 
-    print('hi')
-    driver.quit()
+            tmp=WebDriverWait(driver,10).until(
+                EC.visibility_of_all_elements_located((By.CLASS_NAME,'titlelink1'))
+            )
+            print(len(tmp))
+            tmp[3].click()#补退选
+
+            print('Begin Loop')
+            while(ele_set):
+                single_loop(driver)
+                print(time.asctime())
+                time.sleep(10+randint(0,5))
+            print('hi')
+            driver.quit()
+        except:
+            print('ERROR!!!!!!!')
+            driver.quit()
 
