@@ -9,7 +9,7 @@ import json
 import time
 from datetime import date
 import base64
-from random import randint
+from random import randint,random
 import sys
 
 ele_set = {}
@@ -139,7 +139,9 @@ if __name__ == "__main__":
                 single_loop(driver)
                 print(time.asctime())
                 driver.refresh()
-                time.sleep(8 + randint(0, 5))
+                sleep_time=5+random()*5
+                print("sleep",sleep_time)
+                time.sleep(sleep_time)
                 loop_turn += 1
             print('End Loop')
             driver.quit()
