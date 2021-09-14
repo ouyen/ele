@@ -110,10 +110,10 @@ if __name__ == "__main__":
           ele_type_list[ele_type],
           state_list[state],
           sep='\n')
-    with open('gif2base64.js', 'r') as f:
+    with open('./src/gif2base64.js', 'r') as f:
         js = f.read()
     # r=CaptchaRecognizer(CNN_MODEL_FILE)
-    r = CaptchaRecognizer('./cnn.20210311.1.pt')
+    r = CaptchaRecognizer('./src/cnn.20210311.1.pt')
     while (ele_set):
         print('Start Driver')
         driver = iaaa_login()
