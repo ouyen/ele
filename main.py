@@ -14,7 +14,7 @@ import sys
 
 ele_set = {}
 captcha_code = 'qwqw'
-global r, js, stuid, passwd, ele_type, headless, state
+global r, js, stuid, passwd, ele_type, headless, state,max_turn
 
 
 def send_message(_s):
@@ -58,6 +58,7 @@ def single_loop(driver: webdriver.Firefox):
     WebDriverWait(driver, 10).until(
         EC.presence_of_element_located(
             (By.ID, 'validCode'))).send_keys(captcha_code)
+    time.sleep(1)
 
     # tmp=driver.find_elements_by_class_name('datagrid')
     tmp = WebDriverWait(driver, 10).until(
@@ -88,7 +89,7 @@ def single_loop(driver: webdriver.Firefox):
                 # details[10].click()
                 # driver.switch_to.alert.accept()
                 pass
-    driver.refresh()
+    # driver.refresh()
 
 
 if __name__ == "__main__":
@@ -103,6 +104,7 @@ if __name__ == "__main__":
     state = config_json['state']
     ele_type_list = ['无双学位', "主修", '辅双']
     state_list = ['补退选', "补选"]
+    max_turn=config_json['max_turn']
     print('Read config:',
           stuid,
           passwd,
@@ -132,11 +134,12 @@ if __name__ == "__main__":
             print('Begin Loop')
             # begin_time=
             loop_turn = 1
-            while (ele_set and loop_turn < 10):
+            while (ele_set and loop_turn < max_turn):
                 print('Loop turn:', loop_turn)
                 single_loop(driver)
                 print(time.asctime())
-                time.sleep(10 + randint(0, 5))
+                driver.refresh()
+                time.sleep(8 + randint(0, 5))
                 loop_turn += 1
             print('End Loop')
             driver.quit()
