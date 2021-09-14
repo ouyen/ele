@@ -10,8 +10,8 @@ import sys
 sys.path.append("../")
 
 import os
-from autoelective.captcha import CaptchaRecognizer
-from autoelective.const import CNN_MODEL_FILE
+from captcha import CaptchaRecognizer
+# from autoelective.const import CNN_MODEL_FILE
 
 def test_captcha(r, code):
     filepath = os.path.join(os.path.dirname(__file__), './data/%s.gif' % code)
@@ -23,7 +23,7 @@ def test_captcha(r, code):
     print(c, c.code == code)
 
 def main():
-    r = CaptchaRecognizer(CNN_MODEL_FILE)
+    r = CaptchaRecognizer('../cnn.20210311.1.pt')
     test_captcha(r, 'er47')
     test_captcha(r, 'rskh')
     test_captcha(r, 'uesg')

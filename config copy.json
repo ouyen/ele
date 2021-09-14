@@ -1,6 +1,9 @@
 {
-    "stuid":"",
-    "passwd":"",
-    "ele_set":[""]
-    
+    "stuid":"1900019810",
+    "passwd":"114514",
+    "ele_set":[""],
+    "ele_type":0,
+    "headless":0,
+    "max_turn":300,
+    "state":0
 }

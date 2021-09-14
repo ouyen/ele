@@ -1,7 +1,5 @@
 from selenium.webdriver.remote.webdriver import WebDriver
-from autoelective import captcha
-from autoelective.captcha import CaptchaRecognizer
-from autoelective.const import CNN_MODEL_FILE
+from captcha import CaptchaRecognizer
 from selenium import webdriver
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -16,24 +14,28 @@ import sys
 
 ele_set={}
 captcha_code='qwqw'
-global r,js,stuid,passwd
-geckodriver_path='./'
+global r,js,stuid,passwd,ele_type,headless,state
 
 def send_message(_s):
     print(_s)
 
 def iaaa_login():
     ff_op=webdriver.FirefoxOptions()
-    # ff_op.set_headless()
+    if headless:
+        ff_op.set_headless()
     driver=webdriver.Firefox(options=ff_op) 
-    driver.get('https://elective.pku.edu.cn/')
-    # iaaa login
-    WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.ID, "user_name"))
-    ).send_keys(stuid)
-    driver.find_element_by_id('password').send_keys(passwd)
-    driver.find_element_by_id('logon_button').click()
-    return driver
+    try:
+        driver.get('https://elective.pku.edu.cn/')
+        # iaaa login
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "user_name"))
+        ).send_keys(stuid)
+        driver.find_element_by_id('password').send_keys(passwd)
+        driver.find_element_by_id('logon_button').click()
+        return driver
+    except:
+        driver.quit()
+        raise
 
 def single_loop(driver:webdriver.Firefox):
     try:
@@ -44,7 +46,7 @@ def single_loop(driver:webdriver.Firefox):
         _begin=img_src.find('base64,')
         im_data=(base64.b64decode(img_src[_begin+len('base64,'):]))
         c=r.recognize(im_data)
-        print(c.code)
+        print('get capture:',c.code)
         captcha_code=c.code
     except:
         print('cap_error')
@@ -88,36 +90,47 @@ def single_loop(driver:webdriver.Firefox):
             
 
 if __name__=="__main__":
-    with open('config.json','r') as f:
+    with open('config.json','r',encoding='utf-8') as f:
         config=f.read()
     config_json=json.loads(config)
     stuid=config_json['stuid']
     passwd=config_json['passwd']
     ele_set=config_json['ele_set']
-    with open('1.js','r') as f:
+    ele_type=int(config_json['ele_type'])
+    headless=config_json['headless']
+    state=config_json['state']
+    ele_type_list=['无双学位',"主修",'辅双']
+    state_list=['补退选',"补选"]
+    print('Read config:',stuid,passwd,str(ele_set),ele_type_list[ele_type],state_list[state],sep='\n')
+    with open('gif2base64.js','r') as f:
         js=f.read()
-    r=CaptchaRecognizer(CNN_MODEL_FILE)
+    # r=CaptchaRecognizer(CNN_MODEL_FILE)
+    r=CaptchaRecognizer('./cnn.20210311.1.pt')
     while(ele_set):
+        print('Start Driver')
+        driver=iaaa_login()
         try:
-            print('Start Driver')
-            driver=iaaa_login()
-            if 1:#主修
+            if ele_type:#主修
                 WebDriverWait(driver,10).until(
-                    EC.element_to_be_clickable((By.ID,'div1'))
+                    EC.element_to_be_clickable((By.ID,'div'+str(ele_type)))
                 ).click()
 
             tmp=WebDriverWait(driver,10).until(
                 EC.visibility_of_all_elements_located((By.CLASS_NAME,'titlelink1'))
             )
-            print(len(tmp))
+            # print(len(tmp))
             tmp[3].click()#补退选
 
             print('Begin Loop')
-            while(ele_set):
+            # begin_time=
+            loop_turn=1
+            while(ele_set and loop_turn<10):
+                print('Loop turn:',loop_turn)
                 single_loop(driver)
                 print(time.asctime())
                 time.sleep(10+randint(0,5))
-            print('hi')
+                loop_turn+=1
+            print('End Loop')
             driver.quit()
         except:
             print('ERROR!!!!!!!')
