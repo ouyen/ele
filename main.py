@@ -12,10 +12,12 @@ import time
 from datetime import date
 import base64
 from random import randint
+import sys
 
 ele_set={}
 captcha_code='qwqw'
 global r,js,stuid,passwd
+geckodriver_path='./'
 
 def send_message(_s):
     print(_s)
@@ -47,24 +49,31 @@ def single_loop(driver:webdriver.Firefox):
     except:
         print('cap_error')
 
-    driver.find_element_by_id('validCode').send_keys(captcha_code)
+    # driver.find_element_by_id('validCode').send_keys(captcha_code)
+    WebDriverWait(driver,10).until(
+        EC.presence_of_element_located((By.ID,'validCode'))
+    ).send_keys(captcha_code)
 
-    tmp=driver.find_elements_by_class_name('datagrid')
-    print(len(tmp))
-    print(tmp[1].text)
+    # tmp=driver.find_elements_by_class_name('datagrid')
+    tmp=WebDriverWait(driver,10).until(
+        EC.presence_of_all_elements_located((By.CLASS_NAME,'datagrid'))
+    )
+    # print(len(tmp))
+    # print(tmp[1].text)
     # if(tmp[1].text!=)
     even_class=tmp[0].find_elements_by_class_name('datagrid-even')
     odd_class=tmp[0].find_elements_by_class_name('datagrid-odd')
     class_list=even_class+odd_class
-    print(len(class_list))
+    # print(len(class_list))
 
     for single_class_num in range(len(class_list)):
         single_class=class_list[single_class_num]
         details=single_class.find_elements_by_class_name('datagrid')
         class_name=details[0].text+','+details[5].text
         if(class_name in ele_set):
-            print(single_class_num)
+            # print(single_class_num)
             ele_frag=[int(_) for _ in details[9].text.split(' / ')]
+            print(class_name,str(ele_frag))
             if(ele_frag[0]>ele_frag[1]):
                 details[10].click()
                 driver.switch_to.alert.accept()
@@ -72,23 +81,25 @@ def single_loop(driver:webdriver.Firefox):
                 ele_set.pop(class_name)
                 # return
             else:
-                details[10].click()
-                driver.switch_to.alert.accept()
+                # details[10].click()
+                # driver.switch_to.alert.accept()
+                pass
+    driver.refresh()
             
 
 if __name__=="__main__":
+    with open('config.json','r') as f:
+        config=f.read()
+    config_json=json.loads(config)
+    stuid=config_json['stuid']
+    passwd=config_json['passwd']
+    ele_set=config_json['ele_set']
+    with open('1.js','r') as f:
+        js=f.read()
+    r=CaptchaRecognizer(CNN_MODEL_FILE)
     while(ele_set):
         try:
             print('Start Driver')
-            with open('config.json','r') as f:
-                config=f.read()
-            config_json=json.loads(config)
-            stuid=config_json['stuid']
-            passwd=config_json['passwd']
-            ele_set=config_json['ele_set']
-            with open('1.js','r') as f:
-                js=f.read()
-            r=CaptchaRecognizer(CNN_MODEL_FILE)
             driver=iaaa_login()
             if 1:#主修
                 WebDriverWait(driver,10).until(
