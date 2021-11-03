@@ -139,7 +139,7 @@ if __name__ == "__main__":
                 single_loop(driver)
                 print(time.asctime())
                 driver.refresh()
-                sleep_time=5+random()*5
+                sleep_time=5+random()
                 print("sleep",sleep_time)
                 time.sleep(sleep_time)
                 loop_turn += 1
